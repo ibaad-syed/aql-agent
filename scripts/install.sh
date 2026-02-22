@@ -2,7 +2,7 @@
 # One-shot setup for aql-agent on Raspberry Pi 5 (Debian/Ubuntu)
 set -euo pipefail
 
-REPO_DIR="${1:-/home/pi/aql-agent}"
+REPO_DIR="${1:-/home/ibpi/aql-agent}"
 echo "=== aql-agent installer ==="
 echo "Install directory: $REPO_DIR"
 
@@ -11,7 +11,7 @@ echo "→ Updating packages…"
 sudo apt-get update -qq
 sudo apt-get install -y -qq git curl
 
-# ── Node.js (for Playwright MCP) ─────────────────────────────
+# ── Node.js ──────────────────────────────────────────────────
 if ! command -v node &>/dev/null; then
     echo "→ Installing Node.js 20.x…"
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -19,25 +19,13 @@ if ! command -v node &>/dev/null; then
 fi
 echo "  Node.js $(node --version)"
 
-# ── uv (Python package manager) ──────────────────────────────
-if ! command -v uv &>/dev/null; then
-    echo "→ Installing uv…"
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.local/bin:$PATH"
-fi
-echo "  uv $(uv --version)"
-
-# ── Claude Code CLI (bundled with claude-agent-sdk) ──────────
-if ! command -v claude &>/dev/null; then
-    echo "→ Installing Claude Code CLI…"
-    npm install -g @anthropic-ai/claude-code
-fi
-echo "  Claude CLI installed"
-
 # ── Project setup ────────────────────────────────────────────
 cd "$REPO_DIR"
-echo "→ Installing Python dependencies…"
-uv sync
+echo "→ Installing Node.js dependencies…"
+npm install
+
+echo "→ Building TypeScript…"
+npm run build
 
 # ── Playwright browsers ─────────────────────────────────────
 echo "→ Installing Playwright browser (Chromium)…"

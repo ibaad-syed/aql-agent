@@ -5,10 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi/aql-agent
-EnvironmentFile=/home/pi/aql-agent/.env
-ExecStart=/home/pi/.local/bin/uv run python -m aql_agent.main
+User=ibpi
+WorkingDirectory=/home/ibpi/aql-agent
+EnvironmentFile=/home/ibpi/aql-agent/.env
+ExecStart=/usr/bin/node /home/ibpi/aql-agent/dist/index.js
 Restart=on-failure
 RestartSec=10
 

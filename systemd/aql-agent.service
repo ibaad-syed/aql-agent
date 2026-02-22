@@ -1,0 +1,21 @@
+[Unit]
+Description=AQL Agent — AI assistant on Raspberry Pi
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/aql-agent
+EnvironmentFile=/home/pi/aql-agent/.env
+ExecStart=/home/pi/.local/bin/uv run python -m aql_agent.main
+Restart=on-failure
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aql-agent
+
+[Install]
+WantedBy=multi-user.target

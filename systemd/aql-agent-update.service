@@ -1,0 +1,13 @@
+[Unit]
+Description=AQL Agent — auto-update from git
+
+[Service]
+Type=oneshot
+User=ibpi
+WorkingDirectory=/home/ibpi/aql-agent
+ExecStart=/bin/bash /home/ibpi/aql-agent/scripts/update.sh
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aql-agent-update

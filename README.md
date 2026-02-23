@@ -1,15 +1,29 @@
 # aql-agent
 
-Lightweight AI agent for Raspberry Pi 5. Uses Claude via the Vercel AI SDK with multi-channel support (CLI and Slack), tool calling, and MCP integration.
+An intelligent, curious, autonomous AI agent that runs locally on a Raspberry Pi 5. Designed to think, remember, browse the web, execute code, and interact through multiple channels -- all on low-cost, low-power hardware.
 
-## Features
+Built with the Vercel AI SDK and Claude. The long-term goal is a fully autonomous system with persistent memory, vision, and physical movement -- starting with intelligence.
 
-- **Multi-channel** -- CLI for local use, Slack for remote access (socket mode)
-- **Tool calling** -- built-in tools (system info, time) plus Anthropic provider tools (web search, web fetch, code execution, memory)
-- **MCP support** -- connects to MCP servers defined in `.mcp.json` (ships with Playwright for browser automation)
-- **Conversation history** -- per-channel, per-user message history
-- **Auto-update** -- systemd timer pulls from git, rebuilds, and restarts every 5 minutes
-- **Runs headless** -- designed for always-on Pi deployment as a systemd service
+## Vision
+
+This project is building toward a truly autonomous local AI system:
+
+- **Now**: Intelligence and memory -- an always-on agent that can reason, search the web, run code, browse pages, and remember things across conversations
+- **Next**: Vision -- camera input for understanding the physical environment
+- **Later**: Movement -- motor control for physical interaction with the world
+
+The constraint is intentional: everything runs on a single Raspberry Pi 5. No cloud compute, no GPU cluster. If it can be intelligent on 8GB of RAM, it can be intelligent anywhere.
+
+## Current Capabilities
+
+- **Multi-channel communication** -- CLI for local use, Slack for remote access (socket mode)
+- **Web search and browsing** -- search the web, fetch and read pages, automate browsers via Playwright
+- **Code execution** -- sandboxed Python/Bash execution through Anthropic's server-side runtime
+- **Persistent memory** -- file-based memory that survives restarts (`data/memories/`)
+- **Tool use** -- extensible tool system with built-in + Anthropic provider + MCP tools
+- **Conversation history** -- per-channel, per-user context
+- **Self-updating** -- systemd timer pulls from git, rebuilds, and restarts every 5 minutes
+- **Always-on** -- runs headless as a systemd service
 
 ## Quick Start
 
@@ -141,6 +155,21 @@ journalctl -u aql-agent-update -f   # update logs
 
 - **Playwright**: The bundled Chromium from `npx playwright install` may get out of sync with `@playwright/mcp`'s playwright-core version. The `.mcp.json` points at system Chromium (`/usr/bin/chromium`) to avoid this.
 - **Memory**: The agent's memory tool stores files in `data/memories/` (gitignored). These persist across restarts.
+
+## Roadmap
+
+- [x] Core agent with tool-calling loop (ToolLoopAgent)
+- [x] CLI and Slack channels
+- [x] Anthropic provider tools (web search, web fetch, code execution)
+- [x] Persistent memory (file-based)
+- [x] Browser automation via Playwright MCP
+- [x] Auto-update from git
+- [ ] Richer memory -- structured knowledge graph, semantic retrieval
+- [ ] Scheduling -- agent-initiated actions on timers or events
+- [ ] Vision -- Pi camera integration, image understanding
+- [ ] Audio -- microphone input, speech-to-text, voice interaction
+- [ ] Movement -- servo/motor control via GPIO, physical autonomy
+- [ ] Multi-agent -- spawn sub-agents for parallel tasks
 
 ## Runtime Data
 

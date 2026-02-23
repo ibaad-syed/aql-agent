@@ -1,4 +1,9 @@
 import "dotenv/config";
+import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export interface Settings {
   anthropicApiKey: string;
@@ -10,6 +15,11 @@ export interface Settings {
   slackAppToken?: string;
 }
 
+function loadSystemPrompt(): string {
+  const promptPath = resolve(__dirname, "system-prompt.txt");
+  return readFileSync(promptPath, "utf-8").trim();
+}
+
 export function loadSettings(): Settings {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -19,9 +29,7 @@ export function loadSettings(): Settings {
   return {
     anthropicApiKey: apiKey,
     model: process.env.AGENT_MODEL ?? "claude-sonnet-4-5-20250929",
-    systemPrompt:
-      process.env.AGENT_SYSTEM_PROMPT ??
-      "You are a helpful AI assistant running on a Raspberry Pi.",
+    systemPrompt: loadSystemPrompt(),
     maxSteps: parseInt(process.env.AGENT_MAX_TURNS ?? "25", 10),
     enabledChannels: (process.env.ENABLED_CHANNELS ?? "cli")
       .split(",")

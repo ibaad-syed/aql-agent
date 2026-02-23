@@ -1,6 +1,8 @@
 import { loadSettings, type Settings } from "./config.js";
 import { Agent } from "./agent.js";
 import { startHeartbeat } from "./health.js";
+import { loadMCPClients } from "./mcp.js";
+import { toolSet } from "./tools/index.js";
 import { CLIChannel } from "./channels/cli.js";
 import { SlackChannel } from "./channels/slack.js";
 import type { Channel } from "./channels/base.js";
@@ -32,8 +34,15 @@ async function main(): Promise<void> {
   const settings = loadSettings();
   console.log(`[main] starting aql-agent (model: ${settings.model})`);
 
-  const agent = new Agent(settings);
-  await agent.initialize();
+  // Load MCP clients and merge their tools with built-in tools
+  const mcp = await loadMCPClients();
+  let allTools: Record<string, any> = { ...toolSet };
+  for (const client of mcp.clients) {
+    const mcpTools = await client.tools();
+    allTools = { ...allTools, ...mcpTools };
+  }
+
+  const agent = new Agent(settings, allTools);
 
   const channels = buildChannels(settings);
   for (const ch of channels) {
@@ -47,7 +56,7 @@ async function main(): Promise<void> {
     console.log("\n[main] shutting down...");
     clearInterval(heartbeat);
     await Promise.all(channels.map((ch) => ch.stop()));
-    await agent.shutdown();
+    await mcp.shutdown();
     process.exit(0);
   };
 

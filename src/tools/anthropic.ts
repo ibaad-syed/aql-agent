@@ -8,6 +8,7 @@ import {
   existsSync,
 } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { execFile } from "node:child_process";
 
 const MEMORY_DIR = resolve(process.cwd(), "data", "memories");
 mkdirSync(MEMORY_DIR, { recursive: true });
@@ -79,7 +80,25 @@ function executeMemory(input: MemoryInput): string {
 export const anthropicTools = {
   webSearch: anthropic.tools.webSearch_20250305(),
   webFetch: anthropic.tools.webFetch_20250910(),
-  codeExecution: anthropic.tools.codeExecution_20250825(),
+  bash: anthropic.tools.bash_20250124({
+    execute: async ({ command, restart }) => {
+      if (restart) return "Shell restarted.";
+      if (!command) return "Error: no command provided.";
+      return new Promise((resolve) => {
+        execFile("bash", ["-c", command], {
+          timeout: 30_000,
+          maxBuffer: 1024 * 1024,
+          env: { ...process.env, HOME: process.env.HOME ?? "/home/ibpi" },
+        }, (err, stdout, stderr) => {
+          const parts: string[] = [];
+          if (stdout) parts.push(stdout);
+          if (stderr) parts.push(`STDERR:\n${stderr}`);
+          if (err && !stderr) parts.push(`Error: ${err.message}`);
+          resolve(parts.join("\n") || "(no output)");
+        });
+      });
+    },
+  }),
   memory: anthropic.tools.memory_20250818({
     execute: async (input) => executeMemory(input as MemoryInput),
   }),
